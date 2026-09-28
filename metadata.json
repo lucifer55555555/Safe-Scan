@@ -1,0 +1,6 @@
+{
+  "name": "SafeScan AI — Smart Label & Ingredient Safety Scanner",
+  "description": "Smart food label & ingredient safety scanner with deterministic rule-based conflict detection, FDA/EFSA RAG evidence retrieval, and evidence-grounded explanation.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
