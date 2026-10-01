@@ -35,21 +35,14 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
 }) => {
   const [scanMode, setScanMode] = useState<'sample' | 'barcode' | 'ocr' | 'manual'>('sample');
   const [barcodeInput, setBarcodeInput] = useState('8901234567890');
-  const [rawText, setRawText] = useState('Wheat flour, sugar, milk solids, soy lecithin, peanut butter, cocoa powder.');
-  const [productName, setProductName] = useState('Chocolate Peanut Butter Biscuit');
-  const [brandName, setBrandName] = useState('Golden Bakery Co.');
+  const [rawText, setRawText] = useState('');
+  const [productName, setProductName] = useState('');
+  const [brandName, setBrandName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Ingredient token review state
-  const [ingredientTokens, setIngredientTokens] = useState<string[]>([
-    'Wheat flour',
-    'sugar',
-    'milk solids',
-    'soy lecithin',
-    'peanut butter',
-    'cocoa powder'
-  ]);
+  const [ingredientTokens, setIngredientTokens] = useState<string[]>([]);
   const [newTokenInput, setNewTokenInput] = useState('');
   const [showReviewStep, setShowReviewStep] = useState(false);
 
@@ -288,6 +281,9 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
     setError(null);
     setLowConfidenceWarning(false);
     setShowReviewStep(false);
+    // Reset product info so stale data from previous scans is not carried over
+    setProductName('');
+    setBrandName('');
 
     try {
       // Stage 1: Reading & Optimizing label image
