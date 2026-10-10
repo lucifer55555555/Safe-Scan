@@ -106,6 +106,8 @@ export default function App() {
     }
   };
 
+  const [comparePair, setComparePair] = useState<{ prodAId?: string; prodBId?: string } | null>(null);
+
   return (
     <div className="min-h-screen bg-[#080808] text-[#f2f2f2] flex flex-col font-sans selection:bg-emerald-500 selection:text-black">
       {/* Top Navbar */}
@@ -113,6 +115,7 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         profile={profile}
+        onUpdateProfile={(updated) => setProfile(updated)}
         isMobileView={isMobileView}
         setIsMobileView={setIsMobileView}
         onOpenSystemHealth={() => setIsSystemHealthOpen(true)}
@@ -126,6 +129,10 @@ export default function App() {
               profile={profile}
               onAssessmentComplete={handleAssessmentComplete}
               setActiveTab={setActiveTab}
+              onStartBrandComparison={(prodAId, prodBId) => {
+                setComparePair({ prodAId, prodBId });
+                setActiveTab('compare');
+              }}
             />
           )}
 
@@ -140,6 +147,7 @@ export default function App() {
           {activeTab === 'compare' && (
             <ComparisonScreen
               profile={profile}
+              initialPair={comparePair}
               onSelectAssessment={(assessment) => {
                 setLatestAssessment(assessment);
                 setActiveTab('assessment');

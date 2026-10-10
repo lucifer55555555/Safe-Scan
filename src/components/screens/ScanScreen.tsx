@@ -16,7 +16,13 @@ import {
   HelpCircle,
   AlertTriangle,
   Lightbulb,
-  Check
+  Check,
+  Search,
+  Scale,
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 import { SAMPLE_PRODUCTS } from '../../data/sampleProducts';
 import { lookupBarcode, analyzeAssessment } from '../../services/apiClient';
@@ -26,12 +32,14 @@ interface ScanScreenProps {
   profile: UserProfile | null;
   onAssessmentComplete: (assessment: AssessmentResponse) => void;
   setActiveTab: (tab: string) => void;
+  onStartBrandComparison?: (prodAId: string, prodBId: string) => void;
 }
 
 export const ScanScreen: React.FC<ScanScreenProps> = ({
   profile,
   onAssessmentComplete,
-  setActiveTab
+  setActiveTab,
+  onStartBrandComparison
 }) => {
   const [scanMode, setScanMode] = useState<'sample' | 'barcode' | 'ocr' | 'manual'>('sample');
   const [barcodeInput, setBarcodeInput] = useState('8901234567890');
@@ -40,6 +48,11 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
   const [brandName, setBrandName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Search & Category filter states for Demo Catalog
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [expandedIngredientsId, setExpandedIngredientsId] = useState<string | null>(null);
 
   // Ingredient token review state
   const [ingredientTokens, setIngredientTokens] = useState<string[]>([]);
@@ -417,89 +430,273 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
         </div>
       )}
 
-      {/* 1. DEMO PRODUCTS GALLERY (SECTION 14 SCENARIOS) */}
-      {scanMode === 'sample' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xs font-extrabold text-neutral-300 uppercase tracking-widest font-display">
-                DEMO PRODUCTS (Verification Test Scenarios)
-              </h2>
-              <p className="text-xs text-neutral-400">
-                Click any scenario below to observe how the deterministic rules engine & RAG behave.
-              </p>
-            </div>
-            <span className="text-xs text-emerald-400 font-mono font-bold">5 Ground-Truth Demos</span>
-          </div>
+      {/* 1. DEMO PRODUCTS & INDIAN BRAND CATALOG */}
+      {scanMode === 'sample' && (() => {
+        const rivalMap: Record<string, { rivalId: string; rivalName: string; label: string }> = {
+          'prod_ind_maggi_masala_noodles': { rivalId: 'prod_ind_yippee_magic_masala', rivalName: 'YiPPee! Noodles', label: '⚔️ vs YiPPee' },
+          'prod_ind_yippee_magic_masala': { rivalId: 'prod_ind_maggi_masala_noodles', rivalName: 'MAGGI Noodles', label: '⚔️ vs MAGGI' },
+          'prod_ind_patanjali_atta_noodles': { rivalId: 'prod_ind_maggi_masala_noodles', rivalName: 'MAGGI Noodles', label: '⚔️ vs MAGGI' },
+          'prod_ind_haldirams_aloo_bhujia': { rivalId: 'prod_ind_bikaji_aloo_bhujia', rivalName: 'Bikaji Bhujia', label: '⚔️ vs Bikaji' },
+          'prod_ind_bikaji_aloo_bhujia': { rivalId: 'prod_ind_haldirams_aloo_bhujia', rivalName: "Haldiram's Bhujia", label: "⚔️ vs Haldiram's" },
+          'prod_ind_balaji_aloo_sev': { rivalId: 'prod_ind_haldirams_aloo_bhujia', rivalName: "Haldiram's Bhujia", label: "⚔️ vs Haldiram's" },
+          'prod_ind_amul_cow_ghee': { rivalId: 'prod_ind_patanjali_desi_ghee', rivalName: 'Patanjali Ghee', label: '⚔️ vs Patanjali' },
+          'prod_ind_patanjali_desi_ghee': { rivalId: 'prod_ind_amul_cow_ghee', rivalName: 'Amul Cow Ghee', label: '⚔️ vs Amul Ghee' },
+          'prod_ind_aashirvaad_svasti_ghee': { rivalId: 'prod_ind_amul_cow_ghee', rivalName: 'Amul Cow Ghee', label: '⚔️ vs Amul Ghee' },
+          'prod_ind_parle_g_biscuit': { rivalId: 'prod_ind_britannia_marie_gold', rivalName: 'Britannia Marie', label: '⚔️ vs Britannia' },
+          'prod_ind_britannia_marie_gold': { rivalId: 'prod_ind_parle_g_biscuit', rivalName: 'Parle-G', label: '⚔️ vs Parle-G' },
+          'prod_ind_sunfeast_glucose_biscuit': { rivalId: 'prod_ind_parle_g_biscuit', rivalName: 'Parle-G', label: '⚔️ vs Parle-G' },
+          'prod_ind_real_mixed_fruit_juice': { rivalId: 'prod_ind_tropicana_mixed_fruit', rivalName: 'Tropicana 100%', label: '⚔️ vs Tropicana' },
+          'prod_ind_tropicana_mixed_fruit': { rivalId: 'prod_ind_real_mixed_fruit_juice', rivalName: 'Real Fruit', label: '⚔️ vs Real Fruit' },
+          'prod_ind_paper_boat_aam_panna': { rivalId: 'prod_ind_real_mixed_fruit_juice', rivalName: 'Real Fruit', label: '⚔️ vs Real Fruit' },
+          'prod_ind_amul_kesar_lassi': { rivalId: 'prod_ind_mother_dairy_lassi', rivalName: 'Mother Dairy Lassi', label: '⚔️ vs Mother Dairy' },
+          'prod_ind_mother_dairy_lassi': { rivalId: 'prod_ind_amul_kesar_lassi', rivalName: 'Amul Lassi', label: '⚔️ vs Amul Lassi' },
+          'prod_ind_britannia_whole_wheat_bread': { rivalId: 'prod_ind_modern_whole_wheat_bread', rivalName: 'Modern Bread', label: '⚔️ vs Modern Bread' },
+          'prod_ind_modern_whole_wheat_bread': { rivalId: 'prod_ind_britannia_whole_wheat_bread', rivalName: 'Britannia Bread', label: '⚔️ vs Britannia' }
+        };
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {SAMPLE_PRODUCTS.map((prod, idx) => {
-              const isSafe = prod.id === 'prod_demo_safe_oats';
-              const isMilk = prod.id === 'prod_demo_milk_chocolate';
-              const isPeanut = prod.id === 'prod_walkthrough_choc_biscuit';
-              const isVegan = prod.id === 'prod_almond_protein_shake';
-              const isUnknown = prod.id === 'prod_demo_unknown_botanical';
+        const categories = [
+          { id: 'all', label: 'All Products' },
+          { id: 'noodles', label: '🍜 Noodles' },
+          { id: 'snacks', label: '🥨 Namkeen & Snacks' },
+          { id: 'biscuits', label: '🍪 Biscuits & Bakery' },
+          { id: 'dairy', label: '🧈 Ghee & Dairy' },
+          { id: 'beverages', label: '🧃 Juices & Drinks' },
+          { id: 'health', label: '🌾 Oats & Health' }
+        ];
 
-              return (
-                <div
-                  key={prod.id}
-                  id={`sample-card-${prod.id}`}
-                  onClick={() => handleSelectSample(prod)}
-                  className={`group relative bg-[#121212] rounded-2xl p-5 border transition-all duration-200 cursor-pointer flex flex-col justify-between hover:border-emerald-500/60 ${
-                    isSafe
-                      ? 'border-emerald-500/40 hover:bg-[#151515]'
-                      : isMilk || isPeanut
-                      ? 'border-rose-500/40 hover:bg-[#151515]'
-                      : isUnknown
-                      ? 'border-amber-500/40 hover:bg-[#151515]'
-                      : 'border-[#262626] hover:bg-[#161616]'
-                  }`}
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-wider">
-                          Scenario {idx + 1} · {prod.brand}
-                        </span>
-                        <h3 className="font-extrabold text-white text-base group-hover:text-emerald-400 transition-colors font-display">
-                          {prod.name}
-                        </h3>
-                      </div>
-                      <span className="text-[10px] font-mono font-bold bg-[#1c1c1c] text-neutral-300 px-2 py-0.5 rounded-md border border-[#333] whitespace-nowrap uppercase">
-                        {prod.category}
-                      </span>
-                    </div>
+        const filteredProducts = SAMPLE_PRODUCTS.filter((prod) => {
+          // Category filter
+          if (selectedCategory !== 'all') {
+            const cat = prod.category.toLowerCase();
+            if (selectedCategory === 'noodles' && !cat.includes('noodle') && !cat.includes('pasta')) return false;
+            if (selectedCategory === 'snacks' && !cat.includes('snack') && !cat.includes('namkeen') && !cat.includes('sev') && !cat.includes('bhujia')) return false;
+            if (selectedCategory === 'biscuits' && !cat.includes('biscuit') && !cat.includes('bread') && !cat.includes('cookie') && !cat.includes('chocolate') && !cat.includes('sweets')) return false;
+            if (selectedCategory === 'dairy' && !cat.includes('ghee') && !cat.includes('dairy') && !cat.includes('milk') && !cat.includes('lassi')) return false;
+            if (selectedCategory === 'beverages' && !cat.includes('juice') && !cat.includes('beverage') && !cat.includes('drink') && !cat.includes('lassi') && !cat.includes('panna')) return false;
+            if (selectedCategory === 'health' && !cat.includes('oat') && !cat.includes('bar') && !cat.includes('sport') && !cat.includes('nutrition')) return false;
+          }
+          // Search query filter
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            const inName = prod.name.toLowerCase().includes(q);
+            const inBrand = prod.brand.toLowerCase().includes(q);
+            const inCategory = prod.category.toLowerCase().includes(q);
+            const inIngredients = prod.ingredientsText.toLowerCase().includes(q);
+            const inBarcode = prod.barcode.includes(q);
+            if (!inName && !inBrand && !inCategory && !inIngredients && !inBarcode) return false;
+          }
+          return true;
+        });
 
-                    <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#222] text-xs text-neutral-300">
-                      <span className="text-neutral-500 font-bold block text-[10px] uppercase font-mono mb-1">Declared Ingredients:</span>
-                      <p className="line-clamp-2 leading-relaxed text-neutral-300 font-mono text-[11px]">{prod.ingredientsText}</p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5">
-                      {prod.labels?.map((lbl) => (
-                        <span
-                          key={lbl}
-                          className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181818] text-neutral-300 border border-[#2a2a2a]"
-                        >
-                          {lbl}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-[#222] flex items-center justify-between text-xs font-mono">
-                    <span className="text-neutral-500 text-[11px]">EAN: {prod.barcode}</span>
-                    <span className="text-emerald-400 font-bold flex items-center space-x-1 group-hover:translate-x-0.5 transition-transform">
-                      <span>Run Assessment</span>
-                      <span>→</span>
+        return (
+          <div className="space-y-5">
+            {/* Search Bar & Stats Header */}
+            <div className="bg-[#121212] border border-[#262626] rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-white font-display flex items-center gap-2">
+                    <span>Verified Product Catalog</span>
+                    <span className="text-xs bg-emerald-500/20 text-emerald-400 font-mono font-bold px-2 py-0.5 rounded-md border border-emerald-500/40">
+                      {SAMPLE_PRODUCTS.length} Verified Items
                     </span>
-                  </div>
+                  </h2>
+                  <p className="text-xs text-neutral-400 mt-0.5">
+                    Search and test popular Indian brands against your health profile or compare competing brands.
+                  </p>
                 </div>
-              );
-            })}
+
+                {/* Search Input */}
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search Maggi, Parle-G, Amul, Ghee..."
+                    className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-neutral-500 font-sans focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white text-xs cursor-pointer font-bold px-1"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Category Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+                {categories.map((cat) => {
+                  const isActive = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`px-3 py-1.5 rounded-xl whitespace-nowrap font-bold text-xs transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/20'
+                          : 'bg-[#181818] text-neutral-400 hover:text-white hover:bg-[#202020] border border-[#2a2a2a]'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Catalog Grid */}
+            {filteredProducts.length === 0 ? (
+              <div className="bg-[#121212] border border-[#262626] rounded-2xl p-12 text-center space-y-2">
+                <Search className="w-8 h-8 text-neutral-500 mx-auto" />
+                <p className="text-white font-bold text-sm">No products matched "{searchQuery}"</p>
+                <p className="text-xs text-neutral-400">Try searching by brand name, category or ingredient keyword.</p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('all');
+                  }}
+                  className="mt-2 px-3 py-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold cursor-pointer"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredProducts.map((prod, idx) => {
+                  const isSafe = prod.id === 'prod_demo_safe_oats';
+                  const isMilk = prod.id === 'prod_demo_milk_chocolate';
+                  const isPeanut = prod.id === 'prod_walkthrough_choc_biscuit';
+                  const isUnknown = prod.id === 'prod_demo_unknown_botanical';
+                  const rival = rivalMap[prod.id];
+                  const isExpanded = expandedIngredientsId === prod.id;
+
+                  return (
+                    <div
+                      key={prod.id}
+                      id={`sample-card-${prod.id}`}
+                      className={`group relative bg-[#121212] rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:border-emerald-500/60 overflow-hidden shadow-xl ${
+                        isSafe
+                          ? 'border-emerald-500/40 hover:bg-[#151515]'
+                          : isMilk || isPeanut
+                          ? 'border-rose-500/40 hover:bg-[#151515]'
+                          : isUnknown
+                          ? 'border-amber-500/40 hover:bg-[#151515]'
+                          : 'border-[#262626] hover:bg-[#161616]'
+                      }`}
+                    >
+                      {/* Product Thumbnail Banner */}
+                      <div className="relative h-28 bg-[#181818] overflow-hidden border-b border-[#222]">
+                        {prod.imageUrl ? (
+                          <img
+                            src={prod.imageUrl}
+                            alt={prod.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#1c1c1c] to-[#121212] flex items-center justify-center">
+                            <span className="text-2xl">📦</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-black/40" />
+
+                        {/* Top Chips */}
+                        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-emerald-400 border border-emerald-500/30 uppercase">
+                            {prod.brand}
+                          </span>
+                          <span className="text-[10px] font-mono font-bold bg-black/70 backdrop-blur-md text-neutral-300 px-2 py-0.5 rounded-md border border-[#333] uppercase">
+                            {prod.category.split('&')[0].trim()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <h3 className="font-extrabold text-white text-base group-hover:text-emerald-400 transition-colors font-display line-clamp-1">
+                            {prod.name}
+                          </h3>
+
+                          {/* Declared Ingredients */}
+                          <div className="bg-[#0a0a0a] p-2.5 rounded-xl border border-[#222] text-xs text-neutral-300">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-neutral-500 font-bold text-[9px] uppercase font-mono">
+                                Declared Ingredients ({prod.ingredientsList.length}):
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedIngredientsId(isExpanded ? null : prod.id);
+                                }}
+                                className="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                              >
+                                {isExpanded ? 'Less ▲' : 'All ▼'}
+                              </button>
+                            </div>
+                            <p className={`leading-relaxed text-neutral-300 font-mono text-[10px] ${isExpanded ? '' : 'line-clamp-2'}`}>
+                              {prod.ingredientsText}
+                            </p>
+                          </div>
+
+                          {/* Labels / Badges */}
+                          <div className="flex flex-wrap gap-1">
+                            {prod.labels?.slice(0, 2).map((lbl) => (
+                              <span
+                                key={lbl}
+                                className="text-[9px] font-mono px-2 py-0.5 rounded bg-[#181818] text-neutral-300 border border-[#2a2a2a] truncate max-w-[200px]"
+                              >
+                                {lbl}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Card Bottom Actions */}
+                        <div className="mt-3 pt-3 border-t border-[#222] space-y-2">
+                          <div className="flex items-center justify-between text-xs font-mono text-neutral-500 text-[10px]">
+                            <span>EAN: {prod.barcode}</span>
+                            {rival && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (onStartBrandComparison) {
+                                    onStartBrandComparison(prod.id, rival.rivalId);
+                                  } else {
+                                    setActiveTab('compare');
+                                  }
+                                }}
+                                className="text-[10px] font-mono font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30 flex items-center gap-1 cursor-pointer transition-colors"
+                              >
+                                <Scale className="w-3 h-3" />
+                                <span>{rival.label}</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSelectSample(prod)}
+                            className="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-xl text-xs flex items-center justify-center space-x-1.5 transition-all shadow-md shadow-emerald-500/10 cursor-pointer"
+                          >
+                            <span>Run Safety Assessment</span>
+                            <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* 2. BARCODE SCANNER */}
       {scanMode === 'barcode' && (
@@ -524,27 +721,40 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
                 type="text"
                 value={barcodeInput}
                 onChange={(e) => setBarcodeInput(e.target.value)}
-                placeholder="e.g. 8901234567890"
+                placeholder="e.g. 8901058000290"
                 className="w-full bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder-neutral-600"
               />
             </div>
 
-            <div className="flex flex-wrap gap-2 text-xs">
-              <span className="text-neutral-400 self-center font-bold text-[11px]">Presets:</span>
-              <button
-                type="button"
-                onClick={() => setBarcodeInput('8901234567890')}
-                className="px-2.5 py-1 rounded-lg bg-[#181818] text-neutral-300 hover:bg-[#222] border border-[#333] font-mono text-[11px] cursor-pointer"
-              >
-                Peanut Biscuit (8901234567890)
-              </button>
-              <button
-                type="button"
-                onClick={() => setBarcodeInput('8901234567891')}
-                className="px-2.5 py-1 rounded-lg bg-[#181818] text-neutral-300 hover:bg-[#222] border border-[#333] font-mono text-[11px] cursor-pointer"
-              >
-                Safe Oat Bar (8901234567891)
-              </button>
+            {/* Quick Presets for Popular Indian Products */}
+            <div className="space-y-1.5 text-xs">
+              <span className="text-neutral-400 font-bold text-[10px] uppercase font-mono block">
+                Popular Indian Barcode Presets:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { name: 'MAGGI Noodles', code: '8901058000290' },
+                  { name: 'YiPPee! Noodles', code: '8901725181223' },
+                  { name: 'Parle-G Biscuit', code: '8901719101039' },
+                  { name: 'Amul Cow Ghee', code: '8901262010052' },
+                  { name: "Haldiram's Bhujia", code: '8904004400115' },
+                  { name: 'Peanut Biscuit (Demo)', code: '8901234567890' },
+                  { name: 'Safe Oat Bar (Demo)', code: '8901234567891' }
+                ].map((item) => (
+                  <button
+                    key={item.code}
+                    type="button"
+                    onClick={() => setBarcodeInput(item.code)}
+                    className={`px-2.5 py-1 rounded-lg border font-mono text-[10px] transition-colors cursor-pointer ${
+                      barcodeInput === item.code
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 font-bold'
+                        : 'bg-[#181818] text-neutral-300 hover:bg-[#222] border-[#333]'
+                    }`}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <button
@@ -609,11 +819,20 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
             </div>
           </div>
 
-          {/* Upload / Camera Box */}
+          {/* High-Tech Upload / Camera Viewfinder Box */}
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-[#333] hover:border-emerald-500/60 rounded-2xl p-6 text-center cursor-pointer bg-[#0a0a0a] transition-colors group"
+            className="relative overflow-hidden border-2 border-dashed border-[#333] hover:border-emerald-500/80 rounded-2xl p-8 text-center cursor-pointer bg-gradient-to-b from-[#0f0f0f] to-[#080808] transition-all group shadow-inner"
           >
+            {/* Viewfinder Corner Reticle Brackets */}
+            <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-emerald-500/60 rounded-tl-sm pointer-events-none" />
+            <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-emerald-500/60 rounded-tr-sm pointer-events-none" />
+            <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-emerald-500/60 rounded-bl-sm pointer-events-none" />
+            <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-emerald-500/60 rounded-br-sm pointer-events-none" />
+
+            {/* Viewfinder Laser Beam Animation (when active or hovering) */}
+            <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-0 group-hover:opacity-100 animate-pulse transition-opacity pointer-events-none" style={{ top: '45%' }} />
+
             <input
               ref={fileInputRef}
               type="file"
@@ -627,7 +846,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
                 <img
                   src={ocrImagePreview}
                   alt="Label Preview"
-                  className="max-h-48 mx-auto rounded-xl border border-[#333] object-contain"
+                  className="max-h-52 mx-auto rounded-xl border border-emerald-500/40 object-contain shadow-lg"
                 />
                 <div className="flex items-center justify-center space-x-2 text-xs text-neutral-300">
                   <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
@@ -635,10 +854,22 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="space-y-2 py-4">
-                <Upload className="w-8 h-8 text-neutral-500 group-hover:text-emerald-400 mx-auto transition-colors" />
-                <p className="text-sm font-bold text-neutral-200">Take photo of ingredient label or upload image</p>
-                <p className="text-xs text-neutral-500 font-mono">Supports JPG, PNG, WebP packaging photos</p>
+              <div className="space-y-3 py-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all shadow-lg">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold text-white group-hover:text-emerald-400 transition-colors">
+                    Take photo of ingredient label or upload image
+                  </p>
+                  <p className="text-xs text-neutral-400 mt-1 font-mono">
+                    Point camera at packaging ingredients · On-device Tesseract OCR
+                  </p>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#141414] border border-[#2a2a2a] text-[10px] font-mono text-emerald-400">
+                  <Camera className="w-3 h-3" />
+                  <span>Camera or Drag & Drop File</span>
+                </div>
               </div>
             )}
           </div>
