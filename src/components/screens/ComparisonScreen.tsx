@@ -197,64 +197,136 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
     const criticalConflictsA = assessmentA.conflicts.filter((c) => c.severity === 'critical');
     const criticalConflictsB = assessmentB.conflicts.filter((c) => c.severity === 'critical');
 
-    // 1. Hard allergen conflict check
-    if (criticalConflictsA.length > 0 && criticalConflictsB.length === 0) {
+    // 1. Critical allergen conflict check
+    const hasCriticalA = criticalConflictsA.length > 0;
+    const hasCriticalB = criticalConflictsB.length > 0;
+
+    if (hasCriticalA && hasCriticalB) {
+      return {
+        winner: 'Neither Product is Safe',
+        winnerLetter: 'NEITHER',
+        badge: 'Critical Allergen Conflicts In Both',
+        isWarning: true,
+        reason: `Both products contain critical allergens (${criticalConflictsA.map(c => c.canonicalName || c.ingredient).join(', ')} in ${assessmentA.product.name}; ${criticalConflictsB.map(c => c.canonicalName || c.ingredient).join(', ')} in ${assessmentB.product.name}) violating your active allergen profile.`
+      };
+    }
+
+    if (hasCriticalA && !hasCriticalB) {
       return {
         winner: assessmentB.product.name,
         winnerLetter: 'B',
         badge: `${assessmentB.product.brand} is Safer for You`,
-        reason: `${assessmentB.product.name} is recommended because ${assessmentA.product.name} contains ${criticalConflictsA.map((c) => c.ingredient).join(', ')}, which directly conflicts with your allergen profile.`
+        isWarning: false,
+        reason: `${assessmentB.product.name} is recommended because ${assessmentA.product.name} contains ${criticalConflictsA.map((c) => c.canonicalName || c.ingredient).join(', ')}, which directly conflicts with your allergen profile.`
       };
     }
-    if (criticalConflictsB.length > 0 && criticalConflictsA.length === 0) {
+    if (hasCriticalB && !hasCriticalA) {
       return {
         winner: assessmentA.product.name,
         winnerLetter: 'A',
         badge: `${assessmentA.product.brand} is Safer for You`,
-        reason: `${assessmentA.product.name} is recommended because ${assessmentB.product.name} contains ${criticalConflictsB.map((c) => c.ingredient).join(', ')}, which directly conflicts with your allergen profile.`
+        isWarning: false,
+        reason: `${assessmentA.product.name} is recommended because ${assessmentB.product.name} contains ${criticalConflictsB.map((c) => c.canonicalName || c.ingredient).join(', ')}, which directly conflicts with your allergen profile.`
       };
     }
 
     // 2. Dietary violation check
     const dietConflictsA = assessmentA.conflicts.filter((c) => c.severity === 'warning');
     const dietConflictsB = assessmentB.conflicts.filter((c) => c.severity === 'warning');
+    const hasDietA = dietConflictsA.length > 0;
+    const hasDietB = dietConflictsB.length > 0;
 
-    if (dietConflictsA.length > 0 && dietConflictsB.length === 0) {
+    if (hasDietA && hasDietB) {
+      return {
+        winner: 'Neither Product Fits Diet',
+        winnerLetter: 'NEITHER',
+        badge: 'Dietary Violations In Both',
+        isWarning: true,
+        reason: `Both products contain ingredients conflicting with your dietary requirements.`
+      };
+    }
+
+    if (hasDietA && !hasDietB) {
       return {
         winner: assessmentB.product.name,
         winnerLetter: 'B',
         badge: `${assessmentB.product.brand} Fits Your Diet`,
+        isWarning: false,
         reason: `${assessmentB.product.name} is recommended because ${assessmentA.product.name} contains ingredients (${dietConflictsA.map((c) => c.ingredient).join(', ')}) violating your dietary preference.`
       };
     }
-    if (dietConflictsB.length > 0 && dietConflictsA.length === 0) {
+    if (hasDietB && !hasDietA) {
       return {
         winner: assessmentA.product.name,
         winnerLetter: 'A',
         badge: `${assessmentA.product.brand} Fits Your Diet`,
+        isWarning: false,
         reason: `${assessmentA.product.name} is recommended because ${assessmentB.product.name} contains ingredients (${dietConflictsB.map((c) => c.ingredient).join(', ')}) violating your dietary preference.`
       };
     }
 
-    // 3. Unresolved / Unknown quarantine check
-    if (assessmentA.unresolved_ingredients.length > 0 && assessmentB.unresolved_ingredients.length === 0 && rankB > rankA) {
+    // 3. Unresolved / Unknown Quarantine check
+    const isQuarantinedA = assessmentA.unresolved_ingredients.length > 0 || assessmentA.score === null;
+    const isQuarantinedB = assessmentB.unresolved_ingredients.length > 0 || assessmentB.score === null;
+
+    if (isQuarantinedA && isQuarantinedB) {
+      return {
+        winner: 'Comparison Inconclusive',
+        winnerLetter: 'INCONCLUSIVE',
+        badge: 'Both Products Quarantined',
+        isWarning: true,
+        reason: `Both products contain unverified ingredients (${[...assessmentA.unresolved_ingredients, ...assessmentB.unresolved_ingredients].slice(0, 4).join(', ')}). Under SafeScan AI's deterministic zero-hallucination policy, numeric scores are quarantined until verified in the knowledge base.`
+      };
+    }
+
+    if (isQuarantinedA && !isQuarantinedB) {
+      if (assessmentB.conflicts.length > 0) {
+        return {
+          winner: 'Comparison Inconclusive',
+          winnerLetter: 'INCONCLUSIVE',
+          badge: 'Quarantine vs Restriction',
+          isWarning: true,
+          reason: `${assessmentA.product.brand} is quarantined due to ${assessmentA.unresolved_ingredients.length} unverified ingredient(s) (${assessmentA.unresolved_ingredients.join(', ')}), while ${assessmentB.product.brand} has active restrictions (${assessmentB.conflicts.map(c => c.canonicalName || c.ingredient).join(', ')}). Neither product is verified 100% safe.`
+        };
+      }
       return {
         winner: assessmentB.product.name,
         winnerLetter: 'B',
         badge: `${assessmentB.product.brand} is Verified Safe`,
-        reason: `${assessmentB.product.name} is recommended because ${assessmentA.product.name} contains unverified ingredients (${assessmentA.unresolved_ingredients.join(', ')}).`
+        isWarning: false,
+        reason: `${assessmentB.product.name} is verified safe with 0 conflicts, whereas ${assessmentA.product.name} is quarantined due to unverified ingredients (${assessmentA.unresolved_ingredients.join(', ')}).`
       };
     }
 
-    // 4. Secondary Score Comparison if risk levels match
-    const scoreA = assessmentA.score ?? -1;
-    const scoreB = assessmentB.score ?? -1;
+    if (isQuarantinedB && !isQuarantinedA) {
+      if (assessmentA.conflicts.length > 0) {
+        return {
+          winner: 'Comparison Inconclusive',
+          winnerLetter: 'INCONCLUSIVE',
+          badge: 'Quarantine vs Restriction',
+          isWarning: true,
+          reason: `${assessmentB.product.brand} is quarantined due to ${assessmentB.unresolved_ingredients.length} unverified ingredient(s) (${assessmentB.unresolved_ingredients.join(', ')}), while ${assessmentA.product.brand} has active restrictions (${assessmentA.conflicts.map(c => c.canonicalName || c.ingredient).join(', ')}). Neither product is verified 100% safe.`
+        };
+      }
+      return {
+        winner: assessmentA.product.name,
+        winnerLetter: 'A',
+        badge: `${assessmentA.product.brand} is Verified Safe`,
+        isWarning: false,
+        reason: `${assessmentA.product.name} is verified safe with 0 conflicts, whereas ${assessmentB.product.name} is quarantined due to unverified ingredients (${assessmentB.unresolved_ingredients.join(', ')}).`
+      };
+    }
+
+    // 4. Secondary Score Comparison when both have valid non-null numeric scores
+    const scoreA = assessmentA.score ?? 0;
+    const scoreB = assessmentB.score ?? 0;
 
     if (scoreA > scoreB) {
       return {
         winner: assessmentA.product.name,
         winnerLetter: 'A',
         badge: `${assessmentA.product.brand} has Higher Safety Score`,
+        isWarning: false,
         reason: `${assessmentA.product.name} scored ${scoreA}/100 vs ${scoreB}/100 for ${assessmentB.product.name} under your active profile.`
       };
     } else if (scoreB > scoreA) {
@@ -262,6 +334,7 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
         winner: assessmentB.product.name,
         winnerLetter: 'B',
         badge: `${assessmentB.product.brand} has Higher Safety Score`,
+        isWarning: false,
         reason: `${assessmentB.product.name} scored ${scoreB}/100 vs ${scoreA}/100 for ${assessmentA.product.name} under your active profile.`
       };
     } else {
@@ -269,7 +342,8 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
         winner: 'Equal Safety Compatibility',
         winnerLetter: 'EQUAL',
         badge: 'Equally Compatible',
-        reason: `Both products have equivalent risk levels and suitability scores (${scoreA !== -1 ? `${scoreA}/100` : 'Safe'}) under your active profile.`
+        isWarning: false,
+        reason: `Both products have equivalent risk levels and suitability scores (${scoreA}/100) under your active profile.`
       };
     }
   };
@@ -448,21 +522,39 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
         <div className="space-y-6 animate-in fade-in">
           {/* Winner Recommendation Banner */}
           {rec && (
-            <div className="relative overflow-hidden bg-gradient-to-r from-emerald-950/70 via-teal-950/50 to-emerald-950/70 border-2 border-emerald-500/60 rounded-3xl p-6 shadow-2xl">
+            <div className={`relative overflow-hidden border-2 rounded-3xl p-6 shadow-2xl ${
+              rec.isWarning
+                ? 'bg-gradient-to-r from-amber-950/70 via-[#191508] to-amber-950/70 border-amber-500/60'
+                : 'bg-gradient-to-r from-emerald-950/70 via-teal-950/50 to-emerald-950/70 border-emerald-500/60'
+            }`}>
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0 shadow-lg">
-                  <Trophy className="w-6 h-6 stroke-[2.2]" />
+                <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 shadow-lg ${
+                  rec.isWarning
+                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                    : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                }`}>
+                  {rec.isWarning ? (
+                    <AlertTriangle className="w-6 h-6 stroke-[2.2]" />
+                  ) : (
+                    <Trophy className="w-6 h-6 stroke-[2.2]" />
+                  )}
                 </div>
                 <div className="space-y-1.5 flex-1">
                   <div className="flex items-center space-x-2.5">
-                    <span className="text-xs font-mono font-black uppercase px-2.5 py-0.5 rounded-lg bg-emerald-500 text-black shadow-md">
+                    <span className={`text-xs font-mono font-black uppercase px-2.5 py-0.5 rounded-lg shadow-md ${
+                      rec.isWarning
+                        ? 'bg-amber-500 text-black'
+                        : 'bg-emerald-500 text-black'
+                    }`}>
                       {rec.badge}
                     </span>
                     <h2 className="font-extrabold text-white text-base font-display">
                       {rec.winner}
                     </h2>
                   </div>
-                  <p className="text-xs sm:text-sm text-emerald-200 font-medium leading-relaxed font-sans">
+                  <p className={`text-xs sm:text-sm font-medium leading-relaxed font-sans ${
+                    rec.isWarning ? 'text-amber-200' : 'text-emerald-200'
+                  }`}>
                     {rec.reason}
                   </p>
                 </div>
@@ -507,11 +599,27 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
                 <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#222] flex items-center justify-between font-mono text-xs">
                   <span className="text-neutral-400">Safety Score:</span>
                   <span className={`text-base font-black ${
-                    assessmentA.score === null ? 'text-amber-400' : assessmentA.score >= 80 ? 'text-emerald-400' : 'text-rose-400'
+                    assessmentA.score === null ? 'text-amber-400' : assessmentA.score >= 80 ? 'text-emerald-400' : assessmentA.score >= 50 ? 'text-amber-400' : 'text-rose-400'
                   }`}>
                     {assessmentA.score !== null ? `${assessmentA.score} / 100` : 'Suppressed (Quarantine)'}
                   </span>
                 </div>
+
+                {/* Quarantined Tokens Alert */}
+                {assessmentA.unresolved_ingredients.length > 0 && (
+                  <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 font-mono text-[11px] space-y-1.5">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-400 text-xs">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      <span>Quarantined Tokens ({assessmentA.unresolved_ingredients.length}):</span>
+                    </div>
+                    <div className="text-[11px] text-amber-200 bg-black/40 p-2 rounded-lg border border-amber-500/20 font-bold">
+                      {assessmentA.unresolved_ingredients.join(', ')}
+                    </div>
+                    <p className="text-[9px] text-neutral-400 leading-tight">
+                      Score suppressed: safe identification required under deterministic policy.
+                    </p>
+                  </div>
+                )}
 
                 {/* Conflicts */}
                 <div className="space-y-1.5 text-xs">
@@ -526,6 +634,10 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
                         </div>
                       ))}
                     </div>
+                  ) : assessmentA.unresolved_ingredients.length > 0 ? (
+                    <p className="text-amber-400 font-mono text-xs p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                      ⚠️ 0 direct profile conflicts, but unverified ingredients above trigger quarantine
+                    </p>
                   ) : (
                     <p className="text-emerald-400 font-mono text-xs p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                       ✓ No conflicts detected with your health profile
@@ -594,11 +706,27 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
                 <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#222] flex items-center justify-between font-mono text-xs">
                   <span className="text-neutral-400">Safety Score:</span>
                   <span className={`text-base font-black ${
-                    assessmentB.score === null ? 'text-amber-400' : assessmentB.score >= 80 ? 'text-emerald-400' : 'text-rose-400'
+                    assessmentB.score === null ? 'text-amber-400' : assessmentB.score >= 80 ? 'text-emerald-400' : assessmentB.score >= 50 ? 'text-amber-400' : 'text-rose-400'
                   }`}>
                     {assessmentB.score !== null ? `${assessmentB.score} / 100` : 'Suppressed (Quarantine)'}
                   </span>
                 </div>
+
+                {/* Quarantined Tokens Alert */}
+                {assessmentB.unresolved_ingredients.length > 0 && (
+                  <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 font-mono text-[11px] space-y-1.5">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-400 text-xs">
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
+                      <span>Quarantined Tokens ({assessmentB.unresolved_ingredients.length}):</span>
+                    </div>
+                    <div className="text-[11px] text-amber-200 bg-black/40 p-2 rounded-lg border border-amber-500/20 font-bold">
+                      {assessmentB.unresolved_ingredients.join(', ')}
+                    </div>
+                    <p className="text-[9px] text-neutral-400 leading-tight">
+                      Score suppressed: safe identification required under deterministic policy.
+                    </p>
+                  </div>
+                )}
 
                 {/* Conflicts */}
                 <div className="space-y-1.5 text-xs">
@@ -613,6 +741,10 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
                         </div>
                       ))}
                     </div>
+                  ) : assessmentB.unresolved_ingredients.length > 0 ? (
+                    <p className="text-amber-400 font-mono text-xs p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                      ⚠️ 0 direct profile conflicts, but unverified ingredients above trigger quarantine
+                    </p>
                   ) : (
                     <p className="text-emerald-400 font-mono text-xs p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                       ✓ No conflicts detected with your health profile

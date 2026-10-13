@@ -1032,6 +1032,39 @@ export const SEED_INGREDIENTS_DATA: RawIngredientDefinition[] = [
     allergens: [],
     aliases: ['saffron', 'zafran', 'keshar', 'saffron strands', 'kumkuma'],
     dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'cottonseed oil',
+    description: 'Edible vegetable oil extracted from seeds of the cotton plant, widely used in Indian namkeens and fried snacks.',
+    category: 'vegetable oil',
+    allergens: [],
+    aliases: ['cotton seed oil', 'refined cottonseed oil', 'kapasiya tel', 'edible vegetable oil (cottonseed oil)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'potato flakes',
+    description: 'Dehydrated cooked potato flakes used as a primary ingredient in Indian namkeens and aloo sev.',
+    category: 'vegetable / starch',
+    allergens: [],
+    aliases: ['potato', 'potatoes', 'aloo flakes', 'dehydrated potato', 'potato starch'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'rice flour',
+    description: 'Finely milled flour made from rice grains, used for crispness in Indian savoury snacks.',
+    category: 'grain / flour',
+    allergens: [],
+    aliases: ['chawal ka atta', 'rice powder', 'milled rice', 'rice starch'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'citric acid',
+    description: 'Food-grade organic acid (INS 330 / E330) used as an acidity regulator and antioxidant in foods.',
+    category: 'acidity regulator',
+    eNumber: 'E330',
+    allergens: [],
+    aliases: ['ins 330', 'e330', 'acid 330', 'citric acid (ins 330)', 'nimbu sat', 'lemon salt'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
   }
 ];
 

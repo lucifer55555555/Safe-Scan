@@ -283,7 +283,7 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
                   <span className={`text-sm font-black font-mono ${
                     score === null ? 'text-amber-400' : score >= 80 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-rose-400'
                   }`}>
-                    {score !== null ? `${score} / 100` : 'SUPPRESSED'}
+                    {score !== null ? `${score} / 100` : 'SUPPRESSED (QUARANTINE)'}
                   </span>
                 </div>
                 <div className="w-full h-3 bg-[#1a1a1a] rounded-full overflow-hidden border border-[#333]">
@@ -295,6 +295,39 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
                   />
                 </div>
               </div>
+
+              {/* Instant Key Problem Highlights Banner in Hero */}
+              {(conflicts.length > 0 || unresolved_ingredients.length > 0) && (
+                <div className="p-3 rounded-xl bg-black/60 border border-white/10 flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase font-black text-neutral-400">
+                    Key Problems:
+                  </span>
+                  {conflicts.map((c, i) => (
+                    <span
+                      key={i}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-black font-mono uppercase flex items-center gap-1.5 shadow ${
+                        c.severity === 'critical'
+                          ? 'bg-rose-500 text-black'
+                          : c.severity === 'warning'
+                          ? 'bg-orange-500 text-black'
+                          : 'bg-amber-500 text-black'
+                      }`}
+                    >
+                      {c.type === 'ALLERGEN_CONFLICT' ? <Skull className="w-3.5 h-3.5" /> :
+                       c.type === 'DIET_CONFLICT' ? <Ban className="w-3.5 h-3.5" /> :
+                       <CircleAlert className="w-3.5 h-3.5" />}
+                      <span>{c.canonicalName || c.ingredient}</span>
+                      <span className="text-[9px] opacity-75 font-sans font-bold">({c.severity})</span>
+                    </span>
+                  ))}
+                  {unresolved_ingredients.length > 0 && (
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-400 text-black text-xs font-black font-mono uppercase flex items-center gap-1.5 shadow">
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      <span>{unresolved_ingredients.length} Unverified Ingredient{unresolved_ingredients.length !== 1 ? 's' : ''} (Quarantined)</span>
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -328,11 +361,10 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
 
       {/* ================================================================== */}
       {/* 2. PROBLEMS FOUND — Big, unmissable conflict cards                  */}
-      {/*    Only shows when there ARE problems                               */}
       {/* ================================================================== */}
-      {hasProblem && conflicts.length > 0 && (
+      {(conflicts.length > 0 || unresolved_ingredients.length > 0) && (
         <div className={`rounded-2xl border-2 overflow-hidden shadow-xl ${
-          isCritical || isWarning ? 'border-rose-500/50' : 'border-amber-500/50'
+          isCritical || isWarning ? 'border-rose-500/60' : 'border-amber-500/60'
         }`}>
           {/* Section Header */}
           <div className={`px-6 py-4 flex items-center justify-between ${
@@ -348,15 +380,19 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wide font-display">
-                  {conflicts.length} Problem{conflicts.length !== 1 ? 's' : ''} Found
+                  {conflicts.length + (unresolved_ingredients.length > 0 ? unresolved_ingredients.length : 0)} Key Issue{conflicts.length + unresolved_ingredients.length !== 1 ? 's' : ''} Identified
                 </h2>
-                <p className="text-[11px] text-neutral-300 font-mono">These issues affect YOUR specific health profile</p>
+                <p className="text-[11px] text-neutral-300 font-mono">
+                  {isCritical || isWarning
+                    ? 'Direct conflicts found with your declared allergies or dietary rules'
+                    : 'Issues flagged against your profile or unverified ingredient tokens'}
+                </p>
               </div>
             </div>
             <span className={`text-xs font-black font-mono px-3 py-1 rounded-lg ${
-              isCritical || isWarning ? 'bg-rose-500 text-black' : 'bg-amber-500 text-black'
+              isCritical ? 'bg-rose-500 text-black' : isWarning ? 'bg-orange-500 text-black' : 'bg-amber-500 text-black'
             }`}>
-              ACTION REQUIRED
+              {isCritical ? 'DO NOT CONSUME' : isWarning ? 'DIET VIOLATION' : 'VERIFY PACKAGING'}
             </span>
           </div>
 
@@ -418,6 +454,47 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
                 </div>
               );
             })}
+
+            {/* Quarantined / Unverified Ingredients Card */}
+            {unresolved_ingredients.length > 0 && (
+              <div className="bg-amber-500/15 border-2 border-amber-500/50 rounded-xl p-4 sm:p-5 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                      <HelpCircle className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-black uppercase tracking-wide text-amber-300">
+                        {unresolved_ingredients.length} Unverified Ingredient{unresolved_ingredients.length !== 1 ? 's' : ''} (Quarantine)
+                      </h3>
+                      <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-wider">
+                        Zero-Hallucination Safety Suppression
+                      </span>
+                    </div>
+                  </div>
+                  <span className="bg-amber-500 text-black text-[10px] font-black font-mono px-2.5 py-1 rounded-lg uppercase tracking-wider shrink-0">
+                    QUARANTINE
+                  </span>
+                </div>
+
+                <div className="bg-black/40 rounded-lg p-3.5 border border-white/5 space-y-2">
+                  <p className="text-xs sm:text-sm text-neutral-200 leading-relaxed">
+                    The following ingredients were extracted from the product label but could not be safely verified in our FDA/EFSA/FSSAI regulatory taxonomy:
+                  </p>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {unresolved_ingredients.map((u, i) => (
+                      <span key={i} className="px-3 py-1 rounded-lg bg-amber-500/25 border border-amber-500/50 text-amber-200 text-xs sm:text-sm font-mono font-bold">
+                        {u}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-amber-300/90 font-mono leading-relaxed">
+                  🛡️ <strong>Why this happens:</strong> SafeScan AI enforces zero hallucination. If an ingredient cannot be normalized with 100% certainty, we refuse to guess. The safety score is suppressed until verified.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -425,7 +502,7 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
       {/* ================================================================== */}
       {/* 2b. SAFE PRODUCT — Clear positive reinforcement when no problems    */}
       {/* ================================================================== */}
-      {!hasProblem && (
+      {conflicts.length === 0 && unresolved_ingredients.length === 0 && (
         <div className="rounded-2xl border-2 border-emerald-500/50 overflow-hidden shadow-xl">
           <div className="bg-gradient-to-r from-emerald-950/80 to-emerald-900/40 px-6 py-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/30 border border-emerald-500/50 flex items-center justify-center shrink-0">
