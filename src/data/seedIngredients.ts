@@ -1192,6 +1192,328 @@ export const SEED_INGREDIENTS_DATA: RawIngredientDefinition[] = [
     allergens: ['soy'],
     aliases: ['soya flour', 'defatted soy flour', 'soybean flour'],
     dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  // --- FRUITS, VEGETABLES & NATURAL BOTANICAL INGREDIENTS ---
+  {
+    canonicalName: 'mango',
+    description: 'Flesh, pulp, or puree of Mangifera indica, the quintessential tropical fruit used in juices and pickles.',
+    category: 'fruit',
+    allergens: [],
+    aliases: ['mango pulp', 'green mango pulp', 'mango puree', 'raw mango', 'aam', 'mango juice', 'green mango'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'red chilli',
+    description: 'Dried or crushed pungent chili peppers (Capsicum annuum), primary source of heat in Indian cuisine.',
+    category: 'spice',
+    allergens: [],
+    aliases: ['red chilli powder', 'chilli', 'chilli powder', 'crushed chilli', 'lal mirch', 'red pepper'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'ginger',
+    description: 'Rhizome of Zingiber officinale, aromatic culinary spice and natural digestive aid.',
+    category: 'spice / vegetable',
+    allergens: [],
+    aliases: ['ginger powder', 'dry ginger', 'adrak', 'saunth', 'fresh ginger'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'garlic',
+    description: 'Bulb of Allium sativum, pungent culinary vegetable and flavor base.',
+    category: 'vegetable / seasoning',
+    allergens: [],
+    aliases: ['garlic powder', 'lahsun', 'dehydrated garlic', 'garlic flakes'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'onion',
+    description: 'Bulb of Allium cepa, ubiquitous savory base in foods and seasoning powders.',
+    category: 'vegetable / seasoning',
+    allergens: [],
+    aliases: ['onion powder', 'toasted onion flakes', 'onion flakes', 'pyaz', 'dehydrated onion'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'tomato',
+    description: 'Fruit of Solanum lycopersicum, used as dehydrated powder or paste in snacks.',
+    category: 'vegetable / fruit',
+    allergens: [],
+    aliases: ['tomato powder', 'tomato paste', 'tamatar', 'tomato solids', 'tomato puree'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'mint',
+    description: 'Aromatic herb leaves of Mentha genus, providing refreshing herbal taste.',
+    category: 'herb',
+    allergens: [],
+    aliases: ['mint extract', 'pudina', 'spearmint', 'peppermint', 'dried mint'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'nutmeg',
+    description: 'Seed spice of Myristica fragrans, giving warm fragrance in baked goods and curries.',
+    category: 'spice',
+    allergens: [],
+    aliases: ['nutmeg powder', 'jaiphal', 'ground nutmeg'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'aniseed',
+    description: 'Seeds of Pimpinella anisum, aromatic sweet licorice-like spice.',
+    category: 'spice',
+    allergens: [],
+    aliases: ['aniseed powder', 'saunf', 'fennel', 'fennel seeds', 'anise'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'vanilla',
+    description: 'Cured seed pods or vanillin extract of Vanilla planifolia, universally popular sweet flavor.',
+    category: 'flavoring',
+    allergens: [],
+    aliases: ['vanilla extract', 'vanillin', 'natural vanilla flavour', 'vanilla flavouring'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'sunflower oil',
+    description: 'Refined neutral edible oil pressed from Helianthus annuus seeds.',
+    category: 'vegetable oil',
+    allergens: [],
+    aliases: ['refined sunflower oil', 'sunflower seed oil', 'surajmukhi tel'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'rice bran oil',
+    description: 'Edible cooking oil extracted from the hard outer brown layer of rice grains (chaff).',
+    category: 'vegetable oil',
+    allergens: [],
+    aliases: ['refined rice bran oil', 'rice oil'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'vegetable oil',
+    description: 'General blend of plant-derived edible frying oils (e.g. palmolein, cottonseed, or soybean).',
+    category: 'vegetable oil',
+    allergens: [],
+    aliases: ['edible vegetable oil', 'refined vegetable oil', 'vegetable fat', 'hydrogenated vegetable fat'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'corn meal',
+    description: 'Coarse flour ground from dried whole corn kernels (maize), primary grain for extruded snacks.',
+    category: 'grain / flour',
+    allergens: [],
+    aliases: ['cornmeal', 'maize meal', 'corn grits', 'makka atta'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'rice meal',
+    description: 'Coarsely ground broken rice grains used in puffed and extruded savory namkeens.',
+    category: 'grain / flour',
+    allergens: [],
+    aliases: ['rice grits', 'milled rice grits', 'chawal kani'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'lentils',
+    description: 'Nutritious edible pulses and dal flour used in savory namkeen doughs.',
+    category: 'pulse / legume',
+    allergens: [],
+    aliases: ['lentil meal', 'dal', 'chana dal', 'moong dal', 'urad dal meal'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'pectin',
+    description: 'Natural structural polysaccharide (INS 440 / E440) extracted from citrus fruits, gelling agent in fruit jams and juices.',
+    category: 'gelling agent / fiber',
+    eNumber: 'E440',
+    allergens: [],
+    aliases: ['ins 440', 'e440', 'fruit pectin', 'citrus pectin', 'thickener (pectin)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'sodium citrate',
+    description: 'Sodium salt of citric acid (INS 331 / E331), buffer and acidity regulator in fruit beverages.',
+    category: 'acidity regulator',
+    eNumber: 'E331',
+    allergens: [],
+    aliases: ['ins 331', 'e331', 'trisodium citrate', 'acidity regulator (ins 331)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'beta-carotene',
+    description: 'Provitamin A plant carotenoid (INS 160a / E160a), natural orange-yellow food coloring in juices.',
+    category: 'natural color',
+    eNumber: 'E160a',
+    allergens: [],
+    aliases: ['ins 160a', 'e160a', 'beta carotene', 'natural colour (beta-carotene)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'sunset yellow',
+    description: 'Synthetic azo food dye (INS 110 / E110 / FD&C Yellow 6), providing vivid orange color.',
+    category: 'synthetic color',
+    eNumber: 'E110',
+    allergens: [],
+    aliases: ['ins 110', 'e110', 'sunset yellow fcf', 'fd&c yellow 6', 'colour 110'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'caramel color',
+    description: 'Sulfite ammonia caramel color (INS 150d / E150d / Class IV), providing dark brown color in colas and seasonings.',
+    category: 'color',
+    eNumber: 'E150d',
+    allergens: [],
+    aliases: ['colour 150d', 'ins 150d', 'e150d', 'caramel iv', 'class iv caramel'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'natural flavor',
+    description: 'Essential oils, oleoresins, or natural essences extracted from spices, fruits, or plants.',
+    category: 'flavoring',
+    allergens: [],
+    aliases: ['natural flavour', 'natural flavours', 'natural flavoring', 'nature identical flavour', 'nature identical flavoring', 'flavour', 'flavor'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'ammonium bicarbonate',
+    description: 'Chemical leavening agent (INS 503ii / E503ii), producing crisp flaky textures in biscuits (Marie Gold, Parle-G).',
+    category: 'raising agent',
+    eNumber: 'E503ii',
+    allergens: [],
+    aliases: ['ins 503ii', 'e503ii', 'raising agent (503ii)', 'ammonium hydrogen carbonate'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'sodium metabisulphite',
+    description: 'Inorganic sulfite salt (INS 223 / E223), dough relaxer and preservative in commercial biscuits.',
+    category: 'dough conditioner / preservative',
+    eNumber: 'E223',
+    allergens: [],
+    aliases: ['ins 223', 'e223', 'sodium metabisulfite', 'dough conditioner (223)', 'dough conditioner (sodium metabisulphite e223)', 'sulphites'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'liquid glucose',
+    description: 'Purified concentrated aqueous solution of nutritive saccharides obtained from starch hydrolysis.',
+    category: 'sweetener / syrup',
+    allergens: [],
+    aliases: ['glucose syrup', 'corn syrup', 'starch syrup'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'carboxymethyl cellulose',
+    description: 'Cellulose gum derivative (INS 466 / E466 / CMC), thickener and stabilizer in dairy drinks and lassis.',
+    category: 'thickener / stabilizer',
+    eNumber: 'E466',
+    allergens: [],
+    aliases: ['ins 466', 'e466', 'cmc', 'cellulose gum', 'sodium carboxymethyl cellulose'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'silicon dioxide',
+    description: 'Synthetic amorphous silica (INS 551 / E551), anticaking agent preventing clumping in powdered spice mixes.',
+    category: 'anticaking agent',
+    eNumber: 'E551',
+    allergens: [],
+    aliases: ['ins 551', 'e551', 'anticaking agent 551', 'anticaking agent (ins 551)', 'silica'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'potassium chloride',
+    description: 'Mineral salt (INS 508 / E508), gelling thickener and salt substitute in noodle doughs.',
+    category: 'thickener / mineral salt',
+    eNumber: 'E508',
+    allergens: [],
+    aliases: ['ins 508', 'e508', 'thickener 508', 'thickener (ins 508)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'guar gum',
+    description: 'Natural galactomannan polysaccharide (INS 412 / E412) extracted from guar beans (Cyamopsis tetragonoloba).',
+    category: 'thickener',
+    eNumber: 'E412',
+    allergens: [],
+    aliases: ['ins 412', 'e412', 'thickener 412', 'thickener (ins 412)', 'guaran'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'potassium carbonates',
+    description: 'Inorganic salt (INS 501 / E501), alkaline salt giving traditional bouncy chewiness to instant noodles (Kansui).',
+    category: 'acidity regulator',
+    eNumber: 'E501',
+    allergens: [],
+    aliases: ['ins 501', 'e501', 'acidity regulator 501', 'acidity regulator (ins 501)', 'potassium carbonate'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'sodium carbonates',
+    description: 'Inorganic salt (INS 500 / E500), alkaline agent improving noodle springiness and texture.',
+    category: 'acidity regulator',
+    eNumber: 'E500',
+    allergens: [],
+    aliases: ['ins 500', 'e500', 'acidity regulator 500', 'acidity regulator (ins 500)', 'sodium carbonate'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'polyphosphates',
+    description: 'Sodium and potassium tripolyphosphates (INS 451 / E451), humectant retaining moisture in noodles.',
+    category: 'humectant / stabilizer',
+    eNumber: 'E451',
+    allergens: [],
+    aliases: ['ins 451', 'e451', 'humectant 451', 'humectant (ins 451)', 'tripolyphosphate'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'disodium ribonucleotides',
+    description: 'Savory umami synergy flavor enhancer (INS 635 / E635), synergistic blend of inosinate and guanylate.',
+    category: 'flavor enhancer',
+    eNumber: 'E635',
+    allergens: [],
+    aliases: ['ins 635', 'e635', 'flavour enhancer 635', 'flavor enhancer 635', 'flavour enhancer (ins 635)', 'i+g'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'disodium guanylate',
+    description: 'Natural umami ribonucleotide flavor enhancer (INS 627 / E627), synergistic with glutamate in seasonings.',
+    category: 'flavor enhancer',
+    eNumber: 'E627',
+    allergens: [],
+    aliases: ['ins 627', 'e627', 'flavour enhancer 627', 'flavor enhancer 627', 'flavour enhancer (ins 627)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'disodium inosinate',
+    description: 'Natural nucleotide flavor enhancer (INS 631 / E631), providing savory richness in snack seasonings.',
+    category: 'flavor enhancer',
+    eNumber: 'E631',
+    allergens: [],
+    aliases: ['ins 631', 'e631', 'flavour enhancer 631', 'flavor enhancer 631', 'flavour enhancer (ins 631)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'hydrolysed vegetable protein',
+    description: 'Savory hydrolyzed plant protein (HVP) seasoning providing natural bouillon flavor.',
+    category: 'flavor enhancer',
+    allergens: [],
+    aliases: ['hvp', 'hydrolyzed vegetable protein', 'hydrolysed plant protein'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'inulin',
+    description: 'Prebiotic soluble chicory root dietary fiber, used to enrich texture and fiber content in health bars.',
+    category: 'fiber / prebiotic',
+    allergens: [],
+    aliases: ['chicory root fiber', 'chicory fiber', 'chicory inulin'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'garam masala',
+    description: 'Traditional blend of warming ground Indian spices (coriander, cumin, cardamom, cinnamon, clove, black pepper).',
+    category: 'spice blend',
+    allergens: [],
+    aliases: ['mixed spices', 'spices and condiments', 'curry powder', 'mixed spice'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
   }
 ];
 

@@ -200,12 +200,37 @@ export function resolveSingleIngredient(raw: string): NormalizedIngredientResult
     }
   }
 
-  // 4. E-number direct match (e.g. E322, E120, E171)
-  const eNumberMatch = normalizedRaw.match(/\b(e\s*\d{3,4}[a-z]?)\b/i);
-  if (eNumberMatch) {
-    const formattedENumber = eNumberMatch[1].replace(/\s+/g, '').toUpperCase();
+  // 3b. Stemming / culinary suffix stripping (e.g. "onion powder" -> onion, "mango pulp" -> mango)
+  const stemmed = normalizedRaw
+    .replace(/\b(powder|extract|flakes|meal|pulp|puree|juice|solids|paste|fat|oil|syrup|concentrate|flavor|flavour|flavouring|flavoring)\b/gi, '')
+    .trim();
+  if (stemmed && stemmed.length >= 3 && aliasLookupMap.has(stemmed)) {
+    const match = aliasLookupMap.get(stemmed)!;
+    const ing = ingredientMap.get(match.ingredientId);
+    return {
+      raw,
+      canonicalName: match.canonicalName,
+      ingredientId: match.ingredientId,
+      matchedAlias: stemmed,
+      category: ing?.category || 'additive',
+      allergens: ing?.allergens || [],
+      dietaryConflicts: ing?.dietaryConflicts,
+      confidence: 0.94,
+      isResolved: true,
+      notes: ing?.description
+    };
+  }
+
+  // 4. E-number & Indian FSSAI INS code match (e.g. E322, INS 330, acidity regulator 330, colour 150d, thickener 412, flavour enhancer 635)
+  const additiveMatch =
+    normalizedRaw.match(/\b(?:e|ins|acidity regulator|preservative|colour|color|thickener|emulsifier|flavour enhancer|flavor enhancer|humectant|raising agent|stabilizer|anticaking agent)\s*(\d{3,4}[a-z0-9]*)\b/i) ||
+    normalizedRaw.match(/\b(e\s*\d{3,4}[a-z0-9]*)\b/i);
+
+  if (additiveMatch) {
+    const numOnly = additiveMatch[1].replace(/[^0-9a-z]/gi, '').toUpperCase();
+    const formattedENumber = `E${numOnly}`;
     for (const ing of ingredients) {
-      if (ing.eNumber && ing.eNumber.toUpperCase() === formattedENumber) {
+      if (ing.eNumber && (ing.eNumber.toUpperCase() === formattedENumber || ing.eNumber.toUpperCase().replace(/^E/, '') === numOnly)) {
         return {
           raw,
           canonicalName: ing.canonicalName,
