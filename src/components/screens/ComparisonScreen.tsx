@@ -76,9 +76,9 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
     {
       id: 'biscuits',
       title: '🍪 Tea-Time Biscuits Battle',
-      brandA: 'Parle-G Glucose',
+      brandA: 'Parle-G Gluco',
       brandB: 'Britannia Marie Gold',
-      prodAId: 'prod_ind_parle_g_biscuit',
+      prodAId: 'prod_ind_parle_g_biscuits',
       prodBId: 'prod_ind_britannia_marie_gold',
       highlight: 'Invert Sugar vs Wheat Fibre & Zero Transfat'
     },
@@ -87,7 +87,7 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
       title: '🥨 Aloo Bhujia Rivalry',
       brandA: "Haldiram's Bhujia",
       brandB: 'Bikaji Bhujia',
-      prodAId: 'prod_ind_haldirams_aloo_bhujia',
+      prodAId: 'prod_ind_haldiram_aloo_bhujia',
       prodBId: 'prod_ind_bikaji_aloo_bhujia',
       highlight: 'Cottonseed Oil vs Groundnut Oil & Spices'
     },
@@ -95,19 +95,19 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
       id: 'ghee',
       title: '🧈 Pure Cow Ghee Battle',
       brandA: 'Amul Cow Ghee',
-      brandB: 'Patanjali Desi Ghee',
+      brandB: 'Patanjali Cow Ghee',
       prodAId: 'prod_ind_amul_cow_ghee',
-      prodBId: 'prod_ind_patanjali_desi_ghee',
+      prodBId: 'prod_ind_patanjali_cow_ghee',
       highlight: '100% Pure Milk Fat · Zero Additives'
     },
     {
       id: 'juice',
-      title: '🧃 Fruit Juice Battle',
-      brandA: 'Real Mixed Fruit',
-      brandB: 'Tropicana 100%',
-      prodAId: 'prod_ind_real_mixed_fruit_juice',
-      prodBId: 'prod_ind_tropicana_mixed_fruit',
-      highlight: 'Added Sugar & Preservatives vs No Added Sugar'
+      title: '🧃 Mango Juice Battle',
+      brandA: 'Real Mango Juice',
+      brandB: 'Tropicana Delight',
+      prodAId: 'prod_ind_real_mango_juice',
+      prodBId: 'prod_ind_tropicana_mango_delight',
+      highlight: 'Added Sugar & Preservatives vs Real Fruit Pulp'
     },
     {
       id: 'bread',
@@ -116,7 +116,34 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
       brandB: 'Modern 100% Wheat',
       prodAId: 'prod_ind_britannia_whole_wheat_bread',
       prodBId: 'prod_ind_modern_whole_wheat_bread',
-      highlight: 'Atta Percentage & Preservative E282'
+      highlight: 'Soybean Oil vs Palm Oil & Preservative E282'
+    },
+    {
+      id: 'sev',
+      title: '🥨 Bhujia vs Sev Battle',
+      brandA: 'Bikaji Bhujia',
+      brandB: 'Balaji Aloo Sev',
+      prodAId: 'prod_ind_bikaji_aloo_bhujia',
+      prodBId: 'prod_ind_balaji_aloo_sev',
+      highlight: 'Palm Oil vs Cottonseed Oil'
+    },
+    {
+      id: 'sweets',
+      title: '🍬 Kaju Katli Sweet Rivalry',
+      brandA: "Haldiram's Kaju Katli",
+      brandB: 'Bikano Kaju Katli',
+      prodAId: 'prod_ind_haldiram_kaju_katli',
+      prodBId: 'prod_ind_bikano_kaju_katli',
+      highlight: 'Chandi Vark vs Cashew Purity'
+    },
+    {
+      id: 'paneer',
+      title: '🍛 Ready-To-Eat Paneer Battle',
+      brandA: 'MTR Paneer Butter',
+      brandB: 'ITC Paneer Makhani',
+      prodAId: 'prod_ind_mtr_paneer_butter_masala',
+      prodBId: 'prod_ind_itc_paneer_makhani',
+      highlight: 'Cashew & Malai vs Pure Dairy Gravy'
     }
   ];
 
@@ -127,6 +154,8 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
       setProductAIndex(idxA);
       setProductBIndex(idxB);
       executeComparison(idxA, idxB);
+    } else {
+      console.warn(`Preset ${preset.id} could not find products: idxA=${idxA}, idxB=${idxB}`);
     }
   };
 

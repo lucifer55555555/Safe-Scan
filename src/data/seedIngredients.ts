@@ -1065,6 +1065,133 @@ export const SEED_INGREDIENTS_DATA: RawIngredientDefinition[] = [
     allergens: [],
     aliases: ['ins 330', 'e330', 'acid 330', 'citric acid (ins 330)', 'nimbu sat', 'lemon salt'],
     dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'water',
+    description: 'Purified potable water used as liquid solvent and dough hydration agent in food manufacturing.',
+    category: 'solvent / base',
+    allergens: [],
+    aliases: ['potable water', 'purified water', 'mineral water', 'filtered water', 'aqua'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'yeast',
+    description: 'Saccharomyces cerevisiae, single-cell microorganism used as biological leavening agent in bread baking.',
+    category: 'leavening agent',
+    allergens: [],
+    aliases: ["baker's yeast", 'active dry yeast', 'instant yeast', 'fresh yeast', 'dry yeast'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'calcium propionate',
+    description: 'Calcium propanoate (E282 / INS 282), food preservative inhibiting mold and bacterial rope growth in bread.',
+    category: 'preservative',
+    eNumber: 'E282',
+    allergens: [],
+    aliases: ['e282', 'ins 282', 'calcium propionate (e282)', 'preservative (calcium propionate e282)', 'preservative 282'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'vinegar',
+    description: 'Aqueous solution of acetic acid (E260 / INS 260) used as an acidulant and natural antimicrobial preservative in bread.',
+    category: 'acidity regulator',
+    eNumber: 'E260',
+    allergens: [],
+    aliases: ['acetic acid', 'e260', 'ins 260', 'white vinegar', 'sirka', 'acidity regulator (vinegar e260)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'ascorbic acid',
+    description: 'L-ascorbic acid (Vitamin C / E300 / INS 300), utilized as antioxidant and flour treatment agent strengthening gluten.',
+    category: 'antioxidant / flour treatment agent',
+    eNumber: 'E300',
+    allergens: [],
+    aliases: ['vitamin c', 'e300', 'ins 300', 'l-ascorbic acid', 'flour treatment agent (ascorbic acid)', 'flour treatment agent (ascorbic acid e300)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'sodium stearoyl lactylate',
+    description: 'Sodium stearoyl-2-lactylate (E481 / INS 481), food emulsifier improving dough strength, tolerance and crumb softness.',
+    category: 'emulsifier / dough conditioner',
+    eNumber: 'E481',
+    allergens: [],
+    aliases: ['ssl', 'e481', 'ins 481', 'sodium stearoyl-2-lactylate', 'emulsifiers (sodium stearoyl lactylate e481)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'glyceryl monostearate',
+    description: 'Glycerol monostearate (E471 / INS 471), mono- and diglycerides of fatty acids used as anti-staling crumb softeners.',
+    category: 'emulsifier',
+    eNumber: 'E471',
+    allergens: [],
+    aliases: ['gms', 'e471', 'ins 471', 'glycerol monostearate', 'glyceryl monostearate e471'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'DATEM',
+    description: 'Diacetyl tartaric acid esters of mono- and diglycerides (E472e / INS 472e), specialized dough strengthener for industrial bread.',
+    category: 'emulsifier / dough conditioner',
+    eNumber: 'E472e',
+    allergens: [],
+    aliases: ['e472e', 'ins 472e', 'diacetyl tartaric acid esters of mono- and diglycerides', 'datem (e472e)', 'emulsifiers (datem e472e)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'corn starch',
+    description: 'Starch extracted from maize grain endosperm (Zea mays), gluten-free thickening and binding agent.',
+    category: 'starch',
+    allergens: [],
+    aliases: ['cornstarch', 'maize starch', 'corn flour', 'starch'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'black pepper',
+    description: 'Ground dried fruit of Piper nigrum, standard culinary seasoning in savory foods and Indian namkeens.',
+    category: 'spice',
+    allergens: [],
+    aliases: ['black pepper powder', 'kali mirch', 'black peppercorns', 'crushed black pepper', 'piper nigrum'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'clove',
+    description: 'Aromatic dried flower bud of Syzygium aromaticum, traditional spice in Indian cuisine.',
+    category: 'spice',
+    allergens: [],
+    aliases: ['cloves', 'laung', 'lavang', 'clove powder', 'ground cloves'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'cardamom',
+    description: 'Aromatic seed pods of Elettaria cardamomum, prized fragrant spice in Indian snacks and desserts.',
+    category: 'spice',
+    allergens: [],
+    aliases: ['elaichi', 'green cardamom', 'chhoti elaichi', 'cardamom powder', 'cardamom seeds'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'TBHQ',
+    description: 'Tertiary butylhydroquinone (E319 / INS 319), synthetic food-grade antioxidant preventing oil oxidation.',
+    category: 'antioxidant / preservative',
+    eNumber: 'E319',
+    allergens: [],
+    aliases: ['tertiary butylhydroquinone', 'e319', 'ins 319', 'antioxidant tbhq', 'antioxidant tbhq (e319)', 'antioxidant (ins 319)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'soybean oil',
+    description: 'Refined vegetable oil pressed from Glycine max seeds, ubiquitous in bakery formulations.',
+    category: 'vegetable oil',
+    allergens: ['soy'],
+    aliases: ['soya oil', 'refined soybean oil', 'soy oil', 'edible vegetable oil (soybean oil)'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'soy flour',
+    description: 'Finely milled defatted soybeans rich in protein and enzymes, used as an oxidative crumb whitener in bread.',
+    category: 'flour / allergen',
+    allergens: ['soy'],
+    aliases: ['soya flour', 'defatted soy flour', 'soybean flour'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
   }
 ];
 

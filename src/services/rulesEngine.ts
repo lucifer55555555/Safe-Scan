@@ -192,15 +192,15 @@ export function evaluateProductSafety(
   if (hasCritical) {
     risk_level = 'CRITICAL';
     score = 0;
+  } else if (hasUnresolved) {
+    risk_level = 'UNKNOWN';
+    score = null; // Spec mandate: UNKNOWN must not produce a misleading numeric score
   } else if (hasDietWarning) {
     risk_level = 'WARNING';
     score = 30;
   } else if (hasCaution) {
     risk_level = 'CAUTION';
     score = 60;
-  } else if (hasUnresolved) {
-    risk_level = 'UNKNOWN';
-    score = null; // Spec mandate: UNKNOWN must not produce a misleading numeric score
   } else {
     risk_level = 'NO_MATCH';
     score = 100;
