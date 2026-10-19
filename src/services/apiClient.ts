@@ -37,6 +37,7 @@ export async function lookupBarcode(barcode: string): Promise<Product> {
 export async function analyzeAssessment(payload: {
   ingredients: string[] | string;
   user_id?: string;
+  profile?: UserProfile;
   product_id?: string;
   barcode?: string;
   product_name?: string;

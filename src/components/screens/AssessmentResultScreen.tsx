@@ -37,7 +37,8 @@ import {
   CircleCheck,
   TriangleAlert,
   OctagonX,
-  Skull
+  Skull,
+  Milk
 } from 'lucide-react';
 import { AssessmentResponse, EvidenceItem, NormalizedIngredientResult } from '../../types';
 import { EvidenceModal } from '../EvidenceModal';
@@ -167,23 +168,58 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
     )
   );
 
-  // Compute Dietary Compatibility
-  const isVegan = !normalized_ingredients.some((n) => {
+  // Compute Dietary Compatibility distinguishing COMPATIBLE, INCOMPATIBLE, and UNKNOWN
+  const hasUnresolvedTokens = unresolved_ingredients.length > 0;
+
+  const dairyIncompatible = normalized_ingredients.some((n) => {
     const ing = n.ingredientId ? db.ingredients.get(n.ingredientId) : null;
-    return ing?.dietaryConflicts?.isVeganSafe === false;
+    return (
+      n.allergens.includes('milk') ||
+      ing?.allergens.includes('milk') ||
+      n.dietaryConflicts?.isDairyFreeSafe === false ||
+      ing?.dietaryConflicts?.isDairyFreeSafe === false
+    );
   });
-  const isVegetarian = !normalized_ingredients.some((n) => {
+  const dairyFreeStatus: 'COMPATIBLE' | 'INCOMPATIBLE' | 'UNKNOWN' = dairyIncompatible ? 'INCOMPATIBLE' : hasUnresolvedTokens ? 'UNKNOWN' : 'COMPATIBLE';
+
+  const veganIncompatible = normalized_ingredients.some((n) => {
     const ing = n.ingredientId ? db.ingredients.get(n.ingredientId) : null;
-    return ing?.dietaryConflicts?.isVegetarianSafe === false;
+    return (
+      n.dietaryConflicts?.isVeganSafe === false ||
+      ing?.dietaryConflicts?.isVeganSafe === false ||
+      n.allergens.some((a) => ['milk', 'egg', 'fish', 'shellfish'].includes(a))
+    );
   });
-  const isGlutenFree = !normalized_ingredients.some((n) => {
+  const veganStatus: 'COMPATIBLE' | 'INCOMPATIBLE' | 'UNKNOWN' = veganIncompatible ? 'INCOMPATIBLE' : hasUnresolvedTokens ? 'UNKNOWN' : 'COMPATIBLE';
+
+  const vegetarianIncompatible = normalized_ingredients.some((n) => {
     const ing = n.ingredientId ? db.ingredients.get(n.ingredientId) : null;
-    return ing?.dietaryConflicts?.isGlutenFreeSafe === false || n.allergens.includes('wheat');
+    return (
+      n.dietaryConflicts?.isVegetarianSafe === false ||
+      ing?.dietaryConflicts?.isVegetarianSafe === false ||
+      n.allergens.some((a) => ['fish', 'shellfish'].includes(a))
+    );
   });
-  const isHalal = !normalized_ingredients.some((n) => {
+  const vegetarianStatus: 'COMPATIBLE' | 'INCOMPATIBLE' | 'UNKNOWN' = vegetarianIncompatible ? 'INCOMPATIBLE' : hasUnresolvedTokens ? 'UNKNOWN' : 'COMPATIBLE';
+
+  const glutenIncompatible = normalized_ingredients.some((n) => {
     const ing = n.ingredientId ? db.ingredients.get(n.ingredientId) : null;
-    return ing?.dietaryConflicts?.isHalalSafe === false;
+    return (
+      n.dietaryConflicts?.isGlutenFreeSafe === false ||
+      ing?.dietaryConflicts?.isGlutenFreeSafe === false ||
+      n.allergens.includes('wheat')
+    );
   });
+  const glutenFreeStatus: 'COMPATIBLE' | 'INCOMPATIBLE' | 'UNKNOWN' = glutenIncompatible ? 'INCOMPATIBLE' : hasUnresolvedTokens ? 'UNKNOWN' : 'COMPATIBLE';
+
+  const halalIncompatible = normalized_ingredients.some((n) => {
+    const ing = n.ingredientId ? db.ingredients.get(n.ingredientId) : null;
+    return (
+      n.dietaryConflicts?.isHalalSafe === false ||
+      ing?.dietaryConflicts?.isHalalSafe === false
+    );
+  });
+  const halalStatus: 'COMPATIBLE' | 'INCOMPATIBLE' | 'UNKNOWN' = halalIncompatible ? 'INCOMPATIBLE' : hasUnresolvedTokens ? 'UNKNOWN' : 'COMPATIBLE';
 
   const handleOpenIngredient = (norm: NormalizedIngredientResult) => {
     const found = norm.ingredientId ? db.ingredients.get(norm.ingredientId) : null;
@@ -600,32 +636,48 @@ export const AssessmentResultScreen: React.FC<AssessmentResultScreenProps> = ({
             <span className="text-[11px] font-mono uppercase font-bold text-neutral-400 tracking-wider block mb-3">
               Dietary Compatibility
             </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
               {[
-                { label: 'Vegan', icon: Leaf, ok: isVegan },
-                { label: 'Vegetarian', icon: Heart, ok: isVegetarian },
-                { label: 'Gluten-Free', icon: Wheat, ok: isGlutenFree },
-                { label: 'Halal', icon: ShieldCheck, ok: isHalal }
-              ].map((diet) => (
-                <div
-                  key={diet.label}
-                  className={`p-3.5 rounded-xl border-2 flex items-center justify-between transition-all ${
-                    diet.ok
-                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300'
-                      : 'bg-rose-500/10 border-rose-500/40 text-rose-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <diet.icon className={`w-4 h-4 ${diet.ok ? 'text-emerald-400' : 'text-rose-400'}`} />
-                    <span className="text-sm font-bold">{diet.label}</span>
+                { label: 'Dairy-Free', icon: Milk, status: dairyFreeStatus },
+                { label: 'Vegan', icon: Leaf, status: veganStatus },
+                { label: 'Vegetarian', icon: Heart, status: vegetarianStatus },
+                { label: 'Gluten-Free', icon: Wheat, status: glutenFreeStatus },
+                { label: 'Halal', icon: ShieldCheck, status: halalStatus }
+              ].map((diet) => {
+                const isComp = diet.status === 'COMPATIBLE';
+                const isUnknown = diet.status === 'UNKNOWN';
+                return (
+                  <div
+                    key={diet.label}
+                    className={`p-3 rounded-xl border-2 flex flex-col justify-between transition-all ${
+                      isComp
+                        ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300'
+                        : isUnknown
+                        ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                        : 'bg-rose-500/10 border-rose-500/40 text-rose-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <diet.icon className={`w-3.5 h-3.5 ${isComp ? 'text-emerald-400' : isUnknown ? 'text-amber-400' : 'text-rose-400'}`} />
+                      <span className="text-xs font-bold font-display">{diet.label}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-black uppercase tracking-wider ${
+                        isComp ? 'text-emerald-400' : isUnknown ? 'text-amber-400' : 'text-rose-400'
+                      }`}>
+                        {diet.status}
+                      </span>
+                      {isComp ? (
+                        <CircleCheck className="w-4 h-4 text-emerald-400" />
+                      ) : isUnknown ? (
+                        <HelpCircle className="w-4 h-4 text-amber-400" />
+                      ) : (
+                        <CircleX className="w-4 h-4 text-rose-400" />
+                      )}
+                    </div>
                   </div>
-                  {diet.ok ? (
-                    <CircleCheck className="w-5 h-5 text-emerald-400" />
-                  ) : (
-                    <CircleX className="w-5 h-5 text-rose-400" />
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

@@ -169,6 +169,7 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
         analyzeAssessment({
           ingredients: prodA.ingredientsList,
           user_id: profile?.userId || 'usr_demo_walkthrough',
+          profile: profile || undefined,
           product_id: prodA.id,
           product_name: prodA.name,
           brand: prodA.brand,
@@ -178,6 +179,7 @@ export const ComparisonScreen: React.FC<ComparisonScreenProps> = ({
         analyzeAssessment({
           ingredients: prodB.ingredientsList,
           user_id: profile?.userId || 'usr_demo_walkthrough',
+          profile: profile || undefined,
           product_id: prodB.id,
           product_name: prodB.name,
           brand: prodB.brand,

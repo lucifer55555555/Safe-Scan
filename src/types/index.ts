@@ -45,6 +45,7 @@ export interface UserProfile {
     avoidArtificialColors?: boolean;
     avoidPreservatives?: boolean;
     avoidAddedSugars?: boolean;
+    lactoseIntolerant?: boolean;
   };
 }
 
@@ -67,7 +68,9 @@ export interface Ingredient {
     isVegetarianSafe: boolean;
     isGlutenFreeSafe: boolean;
     isHalalSafe: boolean;
+    isDairyFreeSafe?: boolean;
   };
+  lactoseContent?: 'high' | 'moderate' | 'low' | 'trace' | 'none';
   notes?: string;
 }
 
@@ -142,7 +145,9 @@ export interface NormalizedIngredientResult {
     isVegetarianSafe: boolean;
     isGlutenFreeSafe: boolean;
     isHalalSafe: boolean;
+    isDairyFreeSafe?: boolean;
   };
+  lactoseContent?: 'high' | 'moderate' | 'low' | 'trace' | 'none';
   confidence: number;
   isResolved: boolean;
   notes?: string;

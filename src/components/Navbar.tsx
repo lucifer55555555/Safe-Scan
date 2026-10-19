@@ -19,6 +19,7 @@ import {
   Monitor
 } from 'lucide-react';
 import { UserProfile } from '../types';
+import { updateProfile } from '../services/apiClient';
 
 interface NavbarProps {
   activeTab: string;
@@ -109,11 +110,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const handleSelectPersona = (preset: typeof personaPresets[0]) => {
     if (onUpdateProfile && profile) {
-      onUpdateProfile({
+      const updated: UserProfile = {
         ...profile,
         dietType: preset.dietType,
         allergies: preset.allergies,
         avoidIngredients: preset.avoidIngredients
+      };
+      onUpdateProfile(updated);
+      updateProfile(profile.userId, updated).catch((err) => {
+        console.warn('Failed to sync profile with server:', err);
       });
     }
     setIsPersonaMenuOpen(false);

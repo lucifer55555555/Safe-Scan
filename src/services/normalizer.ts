@@ -12,6 +12,29 @@ aliases.forEach((a) => {
   });
 });
 
+// Pre-sorted aliases (longest first) for safe substring/boundary matching
+const sortedAliases = Array.from(aliasLookupMap.entries()).sort((a, b) => b[0].length - a[0].length);
+
+// Plant-based milks and non-dairy items that contain words like 'milk' or 'butter'
+const PLANT_NON_DAIRY_PATTERNS = [
+  /\bcoconut\s*milk\b/i,
+  /\balmond\s*milk\b/i,
+  /\bsoy\s*milk\b/i,
+  /\bsoya\s*milk\b/i,
+  /\boat\s*milk\b/i,
+  /\brice\s*milk\b/i,
+  /\bcashew\s*milk\b/i,
+  /\bcocoa\s*butter\b/i,
+  /\bcacao\s*butter\b/i,
+  /\bshea\s*butter\b/i,
+  /\bpeanut\s*butter\b/i,
+  /\balmond\s*butter\b/i,
+  /\bcashew\s*butter\b/i,
+  /\bapple\s*butter\b/i,
+  /\bbutternut\s*squash\b/i,
+  /\bmilk\s*thistle\b/i
+];
+
 const ingredientMap = new Map<string, (typeof ingredients)[0]>();
 ingredients.forEach((ing) => {
   ingredientMap.set(ing.id, ing);
@@ -157,6 +180,7 @@ export function resolveSingleIngredient(raw: string): NormalizedIngredientResult
       category: ing?.category || 'additive',
       allergens: ing?.allergens || [],
       dietaryConflicts: ing?.dietaryConflicts,
+      lactoseContent: ing?.lactoseContent || 'none',
       confidence: 0.99,
       isResolved: true,
       notes: ing?.description
@@ -175,15 +199,34 @@ export function resolveSingleIngredient(raw: string): NormalizedIngredientResult
       category: ing?.category || 'additive',
       allergens: ing?.allergens || [],
       dietaryConflicts: ing?.dietaryConflicts,
+      lactoseContent: ing?.lactoseContent || 'none',
       confidence: 0.95,
       isResolved: true,
       notes: ing?.description
     };
   }
 
-  // 3. Substring / Regex alias matching (e.g. "peanut butter crunch" -> peanut butter -> peanut)
-  for (const [alias, data] of aliasLookupMap.entries()) {
-    if (alias.length >= 4 && (normalizedRaw.includes(alias) || cleaned.includes(alias))) {
+  // 3. Substring / Word-boundary alias matching (longest aliases first to prevent partial misclassifications)
+  for (const [alias, data] of sortedAliases) {
+    if (alias.length < 3) continue;
+
+    // Guard: Prevent generic "milk" alias from matching plant milks or milk thistle
+    if (alias === 'milk' && PLANT_NON_DAIRY_PATTERNS.some((p) => p.test(normalizedRaw) || p.test(cleaned))) {
+      continue;
+    }
+    // Guard: Prevent generic "butter" alias from matching plant/nut butters or butternut squash
+    if (alias === 'butter' && (
+      /\b(cocoa|cacao|shea|peanut|almond|cashew|apple)\s*butter\b/i.test(normalizedRaw) ||
+      /\bbutternut\b/i.test(normalizedRaw) ||
+      /\b(cocoa|cacao|shea|peanut|almond|cashew|apple)\s*butter\b/i.test(cleaned)
+    )) {
+      continue;
+    }
+
+    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const wordRegex = new RegExp(`\\b${escaped}\\b`, 'i');
+
+    if (wordRegex.test(normalizedRaw) || wordRegex.test(cleaned)) {
       const ing = ingredientMap.get(data.ingredientId);
       return {
         raw,
@@ -193,7 +236,8 @@ export function resolveSingleIngredient(raw: string): NormalizedIngredientResult
         category: ing?.category || 'additive',
         allergens: ing?.allergens || [],
         dietaryConflicts: ing?.dietaryConflicts,
-        confidence: 0.90,
+        lactoseContent: ing?.lactoseContent || 'none',
+        confidence: 0.92,
         isResolved: true,
         notes: ing?.description
       };
@@ -215,6 +259,7 @@ export function resolveSingleIngredient(raw: string): NormalizedIngredientResult
       category: ing?.category || 'additive',
       allergens: ing?.allergens || [],
       dietaryConflicts: ing?.dietaryConflicts,
+      lactoseContent: ing?.lactoseContent || 'none',
       confidence: 0.94,
       isResolved: true,
       notes: ing?.description
@@ -239,6 +284,7 @@ export function resolveSingleIngredient(raw: string): NormalizedIngredientResult
           category: ing.category,
           allergens: ing.allergens,
           dietaryConflicts: ing.dietaryConflicts,
+          lactoseContent: ing.lactoseContent || 'none',
           confidence: 0.98,
           isResolved: true,
           notes: ing.description

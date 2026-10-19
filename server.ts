@@ -127,8 +127,12 @@ async function startServer() {
         return res.status(400).json({ error: 'No ingredients provided for analysis' });
       }
 
-      // 1. Fetch user profile
-      const userProfile = db.getProfile(user_id) || db.getProfile('usr_demo_walkthrough')!;
+      // 1. Fetch user profile (prioritize explicit profile sent from client, fallback to DB)
+      const requestedProfile = req.body.profile || req.body.userProfile;
+      if (requestedProfile && user_id) {
+        db.updateProfile(user_id, requestedProfile);
+      }
+      const userProfile = requestedProfile || db.getProfile(user_id) || db.getProfile('usr_demo_walkthrough')!;
 
       // 2. Normalize ingredients
       const normalized = normalizeIngredients(ingredients);
@@ -144,7 +148,8 @@ async function startServer() {
       const ruleResult = evaluateProductSafety(normalized, {
         allergies: userProfile.allergies || [],
         dietType: userProfile.dietType || 'none',
-        avoidIngredients: userProfile.avoidIngredients || []
+        avoidIngredients: userProfile.avoidIngredients || [],
+        preferences: userProfile.preferences
       });
 
       // 5. RAG Retrieval from FDA / EFSA scientific corpus

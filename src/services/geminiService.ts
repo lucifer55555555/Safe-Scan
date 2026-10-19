@@ -116,25 +116,40 @@ function buildDeterministicExplanation(params: {
   const { conflicts, unresolved, evidence, riskLevel } = params;
 
   if (riskLevel === 'CRITICAL' && conflicts.length > 0) {
-    const primaryConflict = conflicts[0];
-    const evidenceCitation = evidence.length > 0
-      ? `According to ${evidence[0].source}, ${primaryConflict.canonicalName || primaryConflict.ingredient} is recognized as a major food allergen requiring strict avoidance for sensitized individuals.`
-      : 'Authoritative guidance recommends avoidance of this ingredient for declared allergies.';
+    const allergenConflicts = conflicts.filter((c) => c.type === 'ALLERGEN_CONFLICT');
+    const dietConflicts = conflicts.filter((c) => c.type === 'DIET_CONFLICT');
+    const customConflicts = conflicts.filter((c) => c.type === 'USER_RESTRICTION');
 
-    return `This product contains ${primaryConflict.ingredient}, which directly matches a declared allergy (${primaryConflict.allergen || primaryConflict.canonicalName}) in your profile. ${evidenceCitation} Consuming this product presents a critical allergen risk.`;
+    const primaryConflict = allergenConflicts[0] || dietConflicts[0] || conflicts[0];
+    const evidenceCitation = evidence.length > 0
+      ? `According to ${evidence[0].source}, ${primaryConflict.canonicalName || primaryConflict.ingredient} is subject to strict regulatory avoidance.`
+      : 'Authoritative guidance recommends complete avoidance of this ingredient under your active profile.';
+
+    let details = '';
+    if (allergenConflicts.length > 0) {
+      details += `Direct allergen trigger detected: ${allergenConflicts.map((c) => `${c.ingredient} (${c.allergen?.toUpperCase() || c.canonicalName})`).join(', ')}. `;
+    }
+    if (dietConflicts.length > 0) {
+      details += `Strict dietary violation (${params.userProfile.dietType.toUpperCase()}): ${dietConflicts.map((c) => c.ingredient).join(', ')}. `;
+    }
+    if (customConflicts.length > 0) {
+      details += `Custom restrictions also flagged: ${customConflicts.map((c) => c.ingredient).join(', ')}. `;
+    }
+
+    return `NOT SUITABLE FOR YOU: ${details.trim()} ${evidenceCitation} This product presents a confirmed safety conflict with your health profile.`;
   }
 
   if (riskLevel === 'WARNING' && conflicts.length > 0) {
     const conflictReasons = conflicts.map((c) => `${c.ingredient} (${c.reason})`).join(', ');
-    return `This product conflicts with your declared dietary preferences: ${conflictReasons}. ${evidence.length > 0 ? `As noted in ${evidence[0].source}, animal or restricted derivatives were identified in the ingredient list.` : ''}`;
+    return `PROCEED WITH CAUTION: This product conflicts with your declared dietary preferences: ${conflictReasons}. ${evidence.length > 0 ? `As noted in ${evidence[0].source}, restricted derivatives were identified in the ingredient list.` : ''}`;
   }
 
   if (riskLevel === 'CAUTION' && conflicts.length > 0) {
-    return `This product contains ingredients on your personal avoid list: ${conflicts.map((c) => c.ingredient).join(', ')}. Please review the detailed ingredient breakdown before consumption.`;
+    return `PROCEED WITH CAUTION: This product contains ingredients on your personal avoid list: ${conflicts.map((c) => `${c.ingredient} (${c.reason})`).join(', ')}. Please review the detailed ingredient breakdown before consumption.`;
   }
 
   if (riskLevel === 'UNKNOWN' || unresolved.length > 0) {
-    return `Insufficient evidence: The scan detected ingredients (${unresolved.join(', ')}) that could not be confidently verified against our curated safety knowledge base. We recommend verifying the product packaging manually.`;
+    return `INSUFFICIENT EVIDENCE: The scan detected ingredients (${unresolved.join(', ')}) that could not be verified in our curated regulatory knowledge base. Safety score is suppressed. We recommend verifying the product packaging manually.`;
   }
 
   return `No detected conflict with the selected profile based on the available ingredient information. All recognized ingredients align with your specified dietary preferences and declared allergen filters.`;

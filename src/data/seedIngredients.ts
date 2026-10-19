@@ -78,7 +78,9 @@ export interface RawIngredientDefinition {
     isVegetarianSafe: boolean;
     isGlutenFreeSafe: boolean;
     isHalalSafe: boolean;
+    isDairyFreeSafe?: boolean;
   };
+  lactoseContent?: 'high' | 'moderate' | 'low' | 'trace' | 'none';
   notes?: string;
 }
 
@@ -720,6 +722,15 @@ export const SEED_INGREDIENTS_DATA: RawIngredientDefinition[] = [
     allergens: [],
     aliases: ['white rice flour', 'brown rice flour', 'rice powder', 'rice starch'],
     dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true }
+  },
+  {
+    canonicalName: 'coconut',
+    description: 'Flesh, milk, or oil of Cocos nucifera. Plant-based palm fruit, dairy-free.',
+    category: 'fruit / plant',
+    allergens: [],
+    aliases: ['coconut milk', 'coconut oil', 'desiccated coconut', 'coconut cream', 'coconut flakes', 'coconut water'],
+    dietaryConflicts: { isVeganSafe: true, isVegetarianSafe: true, isGlutenFreeSafe: true, isHalalSafe: true, isDairyFreeSafe: true },
+    lactoseContent: 'none'
   },
   // --- INDIAN DAIRY & TRADITIONAL INGREDIENTS ---
   {
@@ -1528,6 +1539,40 @@ export function buildSeededDatabase(): {
 
   SEED_INGREDIENTS_DATA.forEach((item, index) => {
     const ingredientId = `ing_${index + 1}_${item.canonicalName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    const cName = item.canonicalName.toLowerCase().trim();
+
+    const isDairyDerived =
+      item.allergens.includes('milk') ||
+      (item.category && item.category.toLowerCase().includes('dairy')) ||
+      ['paneer', 'butter', 'malai', 'ghee', 'khoya', 'dahi', 'curd', 'cheese', 'casein', 'whey', 'lactose', 'cream', 'milk', 'milk solids', 'milk powder', 'milk fat', 'sodium caseinate', 'calcium caseinate', 'buttermilk'].includes(cName);
+
+    const isDairyFreeSafe = item.dietaryConflicts?.isDairyFreeSafe !== undefined
+      ? item.dietaryConflicts.isDairyFreeSafe
+      : !isDairyDerived;
+
+    let lactoseContent: 'high' | 'moderate' | 'low' | 'trace' | 'none' = item.lactoseContent || 'none';
+    if (!item.lactoseContent) {
+      if (cName === 'lactose' || ['milk', 'milk solids', 'milk powder', 'whey', 'khoya', 'dahi', 'ice cream', 'condensed milk'].includes(cName)) {
+        lactoseContent = 'high';
+      } else if (['paneer', 'malai', 'cheese', 'cream'].includes(cName)) {
+        lactoseContent = 'moderate';
+      } else if (['butter', 'table butter'].includes(cName)) {
+        lactoseContent = 'low';
+      } else if (['ghee', 'casein', 'sodium caseinate', 'calcium caseinate'].includes(cName)) {
+        lactoseContent = 'trace';
+      } else {
+        lactoseContent = 'none';
+      }
+    }
+
+    const dietaryConflicts = {
+      isVeganSafe: item.dietaryConflicts?.isVeganSafe ?? !isDairyDerived,
+      isVegetarianSafe: item.dietaryConflicts?.isVegetarianSafe ?? true,
+      isGlutenFreeSafe: item.dietaryConflicts?.isGlutenFreeSafe ?? !item.allergens.includes('wheat'),
+      isHalalSafe: item.dietaryConflicts?.isHalalSafe ?? true,
+      isDairyFreeSafe
+    };
+
     const ingredient: Ingredient = {
       id: ingredientId,
       canonicalName: item.canonicalName,
@@ -1535,7 +1580,8 @@ export function buildSeededDatabase(): {
       category: item.category,
       eNumber: item.eNumber,
       allergens: item.allergens,
-      dietaryConflicts: item.dietaryConflicts,
+      dietaryConflicts,
+      lactoseContent,
       notes: item.notes
     };
     ingredients.push(ingredient);

@@ -202,6 +202,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
       const assessment = await analyzeAssessment({
         ingredients: product.ingredientsList,
         user_id: profile?.userId || 'usr_demo_walkthrough',
+        profile: profile || undefined,
         product_id: product.id,
         barcode: product.barcode,
         product_name: product.name,
@@ -236,6 +237,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
       const assessment = await analyzeAssessment({
         ingredients: product.ingredientsList.length > 0 ? product.ingredientsList : product.ingredientsText,
         user_id: profile?.userId || 'usr_demo_walkthrough',
+        profile: profile || undefined,
         product_id: product.id,
         barcode: product.barcode,
         product_name: product.name,
@@ -267,6 +269,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
       const assessment = await analyzeAssessment({
         ingredients: ingredientTokens.length > 0 ? ingredientTokens : textToSend,
         user_id: profile?.userId || 'usr_demo_walkthrough',
+        profile: profile || undefined,
         product_name: productName || 'Scanned Food Product',
         brand: brandName,
         scan_method: scanMode === 'ocr' ? 'ocr' : 'manual',
