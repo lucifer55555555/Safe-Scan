@@ -416,6 +416,3 @@ SafeScan AI is an informational tool and **not a medical device or a substitute 
 
 ---
 
-## License
-
-No license has been specified yet. Add a `LICENSE` file (e.g. MIT) to define how others may use this project.
